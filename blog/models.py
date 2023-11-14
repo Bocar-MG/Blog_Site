@@ -13,6 +13,10 @@ class PublishedManager(models.Manager):
         return super().get_queryset().filter(status=Post.Status.PUBLISHED)
 
 
+class CommentManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(active=True)
+
 class Post(models.Model):
     class Status(models.TextChoices):
         DRAFT = 'DF', 'DRAFT'
@@ -48,3 +52,25 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Comment(models.Model):
+    name = models.CharField(max_length=250)
+    email = models.EmailField()
+    body = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    active = models.BooleanField(default=True)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+
+    objects = models.Manager()
+    comments = CommentManager()
+
+    class Meta:
+        ordering = ['-created']
+        indexes = [
+            models.Index(fields=['-created'])
+        ]
+
+    def __str__(self):
+        return f'Comment by {self.name} on {self.post}'
