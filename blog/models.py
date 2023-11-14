@@ -2,6 +2,7 @@ import datetime
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 
 
@@ -15,7 +16,7 @@ class PublishedManager(models.Manager):
 class Post(models.Model):
     class Status(models.TextChoices):
         DRAFT = 'DF', 'DRAFT'
-        PUBLISHED = 'PB', 'Published'
+        PUBLISHED = 'PB', 'PUBLISHED'
 
     title = models.CharField(max_length=250)
     slug = models.SlugField(max_length=250)
@@ -24,8 +25,9 @@ class Post(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=2, choices=Status.choices, default=Status.DRAFT)
-    author = models.ForeignKey(User, on_delete=models.CASCADE,related_name='blog_posts')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blog_posts')
 
+    objects = models.Manager()
     published = PublishedManager()
 
     class Meta:
@@ -33,6 +35,16 @@ class Post(models.Model):
         indexes = [
             models.Index(fields=['-date_publish'])
         ]
+
+    # def get_absolute_url(self):
+    # return reverse('blog:post_detail', args=[self.id])
+
+    def get_absolute_url(self):
+        return reverse('blog:post_detail',
+                       args=[self.date_publish.year,
+                             self.date_publish.month,
+                             self.date_publish.day,
+                             self.slug])
 
     def __str__(self):
         return self.title
