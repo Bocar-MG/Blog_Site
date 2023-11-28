@@ -5,6 +5,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
+from accounts.models import CustomUser
+
 
 # Create your models here.
 
@@ -16,6 +18,7 @@ class PublishedManager(models.Manager):
 class CommentManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(active=True)
+
 
 class Post(models.Model):
     class Status(models.TextChoices):
@@ -29,7 +32,7 @@ class Post(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=2, choices=Status.choices, default=Status.DRAFT)
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blog_posts')
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='blog_posts')
 
     objects = models.Manager()
     published = PublishedManager()

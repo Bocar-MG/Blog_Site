@@ -1,0 +1,23 @@
+{% extends "blog/base.html" %}
+{% load blog_tags %}
+{% load static %}
+{% block title %} My posts {% endblock %}
+{% block content %}
+# a for loop here
+{% for post in posts %}
+    <h2>
+        <a href="{{ post.get_absolute_url }}">
+            {{ post.title }}
+        </a>
+    </h2>
+    <p class="date">
+        Published {{ post.date_publish }} by {{ post.author }}
+    </p>
+    {{ post.body|markdown|truncatewords_html:30 }}
+     <a href="{% url 'dashboard:update_post' post.id %}"> Update</a>
+  <a href="{% url 'dashboard:delete_post' post.id %}"> Delete</a>
+{% endfor %}
+{% include "pagination.html" with page=page_obj %}
+
+{% endblock %}
+
